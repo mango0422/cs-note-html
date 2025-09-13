@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>CS Notes</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>CS Notes</h1>
+    <div id="catalog" class="grid"></div>
+  </main>
+  <script>
+    const pages = [
+      { title: "CPU·코어·스레드·프로세스", path: "./cpu-core-thread-process.html", tags:["os","cpu"], updated:"2025-09-13" },
+      { title: "교착상태: Total Allocation", path: "./deadlock-total-allocation.html", tags:["os","deadlock"], updated:"2025-09-13" },
+    ];
+    const $c = document.getElementById('catalog');
+    $c.innerHTML = pages.map(p => `
+      <article>
+        <header><h3><a href="${p.path}">${p.title}</a></h3></header>
+        <footer><small>${p.tags.join(", ")} · ${p.updated}</small></footer>
+      </article>
+    `).join("");
+  </script>
+</body>
+</html>
