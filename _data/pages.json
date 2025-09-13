@@ -1,0 +1,14 @@
+[
+  {
+    "title": "CPU·코어·프로세스·스레드 관계",
+    "path": "os/cpu-core-thread-process.html",
+    "tags": ["os", "cpu", "core", "process", "thread", "scheduling"],
+    "updated": "2025-09-13"
+  },
+  {
+    "title": "데드락 방지 - Total Allocation의 트레이드오프",
+    "path": "os/deadlock-total-allocation.html",
+    "tags": ["os", "deadlock", "allocation", "utilization"],
+    "updated": "2025-09-13"
+  }
+]
