@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <title>CS Notes</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"/>
+</head>
+<body>
+  <main class="container">
+    <h1>CS Notes</h1>
+    <nav>
+      <ul>
+        <li><a href="os/">OS</a></li>
+        <li><a href="net/">Network</a></li>
+        <li><a href="db/">Database</a></li>
+      </ul>
+    </nav>
+    <h2>최근 문서</h2>
+    <div id="recent" class="grid"></div>
+  </main>
+  <script>
+    fetch("_data/pages.json")
+      .then(r => r.json())
+      .then(pages => {
+        const sorted = pages.sort((a,b)=> (b.updated||"").localeCompare(a.updated||"")).slice(0,8);
+        document.getElementById("recent").innerHTML = sorted.map(p => `
+          <article>
+            <header><h3><a href="${p.path}">${p.title}</a></h3></header>
+            <footer><small>${(p.tags||[]).join(", ")} · ${p.updated||""}</small></footer>
+          </article>
+        `).join("");
+      });
+  </script>
+</body>
+</html>

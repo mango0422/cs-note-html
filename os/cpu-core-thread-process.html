@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>CPU·코어·프로세스·스레드 관계</title>
+  <!--
+    title: CPU·코어·프로세스·스레드 관계
+    tags: os, cpu, core, process, thread, scheduling, context-switch
+    updated: 2025-09-13
+    summary: 코어는 스레드를 실행하는 최소 단위이며, 다중 프로세스는 컨텍스트 스위칭으로 교대 실행된다. 멀티코어는 병렬로 여러 스레드를 동시에 처리한다.
+  -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <style>
+    :root { --content-max: 920px; }
+    main.container { max-width: var(--content-max); }
+    h1, h2, h3 { text-wrap: balance; }
+    p, li, dd { text-wrap: pretty; }
+    article, section { contain: content; }
+    dl.terms { display: grid; grid-template-columns: 1fr; gap: .25rem 1rem; }
+    dl.terms dt { font-weight: 600; margin-top: .5rem; }
+    dl.terms dd { margin: 0; opacity: .95; }
+    @media (min-width: 680px) { dl.terms { grid-template-columns: 180px 1fr; } }
+    .tip { border-left: 3px solid var(--pico-primary); padding: .75rem 1rem; background: color-mix(in oklab, var(--pico-primary), transparent 92%); border-radius: .5rem; }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <article>
+      <h1>CPU·코어·프로세스·스레드 관계</h1>
+      <p>
+        운영체제 관점에서 <strong>코어</strong>가 실제 명령을 실행하며, 코어가 직접 실행하는 단위는 <strong>스레드</strong>입니다.
+        <strong>프로세스</strong>는 하나 이상의 스레드를 포함하는 실행 중인 프로그램으로, 스레드를 통해 CPU에서 실행됩니다.
+      </p>
+
+      <dl class="terms">
+        <dt>CPU</dt>
+        <dd>여러 <em>코어</em>를 담을 수 있는 칩. 스케줄링의 실질 대상은 <em>스레드</em>.</dd>
+
+        <dt>코어</dt>
+        <dd>명령을 실제로 실행하는 연산 단위. 한 시점에 <abbr title="동일 순간 파이프라인에 동시에 위치하는 스레드는 1개">1스레드</abbr> 실행이 기본이며, 코어가 여러 개면 병렬 실행 가능.</dd>
+
+        <dt>프로세스</dt>
+        <dd>독립 주소 공간과 자원을 가진 실행 단위(파일/소켓 핸들, 보안 문맥 등 포함). 하나 이상의 스레드를 가짐.</dd>
+
+        <dt>스레드</dt>
+        <dd>코어가 직접 실행하는 최소 실행 단위. 같은 프로세스의 스레드끼리는 메모리 공유.</dd>
+      </dl>
+
+      <p class="tip"><strong>중요:</strong> 한 코어는 한 순간에 <em>오직 하나의 스레드</em>만 실행합니다.
+        여러 프로세스 실행은 <abbr title="레지스터/PC/스택 포인터 등 실행 문맥 교체">컨텍스트 스위칭</abbr>으로 교대로 이뤄지며,
+        멀티코어는 코어 수만큼 스레드를 <em>동시에</em> 처리합니다.
+      </p>
+
+      <h2>실행 관점 요약</h2>
+      <ul>
+        <li><strong>실행 주체:</strong> 코어 → 스레드</li>
+        <li><strong>프로세스 병행:</strong> 컨텍스트 스위칭으로 교대</li>
+        <li><strong>진짜 병렬:</strong> 멀티코어에서 코어 수만큼 병렬 스레드</li>
+      </ul>
+    </article>
+
+    <footer style="margin-top:2rem">
+      <small>자동 라이트/다크, Pico.css CDN, 무애니메이션 설정(접근성).</small>
+    </footer>
+  </main>
+</body>
+</html>
