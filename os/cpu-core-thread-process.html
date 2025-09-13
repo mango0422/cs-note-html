@@ -4,30 +4,63 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="color-scheme" content="light dark" />
+  <meta name="description" content="코어·스레드·프로세스 관계 정리: 실행 단위는 스레드, 프로세스 병행은 컨텍스트 스위칭, 멀티코어는 병렬 실행."/>
   <title>CPU·코어·프로세스·스레드 관계</title>
   <!--
     title: CPU·코어·프로세스·스레드 관계
     tags: os, cpu, core, process, thread, scheduling, context-switch
     updated: 2025-09-13
-    summary: 코어는 스레드를 실행하는 최소 단위이며, 다중 프로세스는 컨텍스트 스위칭으로 교대 실행된다. 멀티코어는 병렬로 여러 스레드를 동시에 처리한다.
+    summary: 코어는 스레드를 실행하는 최소 단위이며, 프로세스 병행은 컨텍스트 스위칭으로 이뤄진다. 멀티코어는 병렬 실행 가능.
   -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
   <style>
-    :root { --content-max: 920px; }
+    :root { --content-max: 900px; }
+    html { word-break: keep-all; }
     main.container { max-width: var(--content-max); }
-    h1, h2, h3 { text-wrap: balance; }
-    p, li, dd { text-wrap: pretty; }
+    header.container { max-width: var(--content-max); }
+    h1 { font-size: clamp(1.6rem, 2.5vw + 1rem, 2.4rem); text-wrap: balance; margin-bottom: .75rem; }
+    h2, h3 { text-wrap: balance; }
+    p, li, dd { text-wrap: pretty; line-height: 1.7; }
     article, section { contain: content; }
+    /* 상단바 */
+    nav ul { align-items: center; }
+    .back {
+      display: inline-flex; align-items: center; gap: .4rem; text-decoration: none;
+    }
+    .back svg { width: 1em; height: 1em; }
+    /* 정의 리스트 */
     dl.terms { display: grid; grid-template-columns: 1fr; gap: .25rem 1rem; }
     dl.terms dt { font-weight: 600; margin-top: .5rem; }
     dl.terms dd { margin: 0; opacity: .95; }
-    @media (min-width: 680px) { dl.terms { grid-template-columns: 180px 1fr; } }
-    .tip { border-left: 3px solid var(--pico-primary); padding: .75rem 1rem; background: color-mix(in oklab, var(--pico-primary), transparent 92%); border-radius: .5rem; }
+    @media (min-width: 700px) { dl.terms { grid-template-columns: 180px 1fr; } }
+    /* 인포 콜아웃 */
+    .tip { border-left: 3px solid var(--pico-primary); padding: .8rem 1rem; border-radius: .5rem; background: color-mix(in oklab, var(--pico-primary), transparent 92%); }
+    /* 모션 최소화 */
     @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
   </style>
 </head>
 <body>
-  <main class="container">
+  <a href="#content" class="skip-to-content">본문으로 건너뛰기</a>
+
+  <header class="container">
+    <nav>
+      <ul>
+        <li>
+          <a class="back" href="../index.html" onclick="if (history.length>1) {history.back(); return false;}">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 19.5 8 12l7.5-7.5"/></svg>
+            <span>목록으로</span>
+          </a>
+        </li>
+      </ul>
+      <ul>
+        <li><a href="../index.html">홈</a></li>
+        <li><a href="./index.html">OS</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="content" class="container">
     <article>
       <h1>CPU·코어·프로세스·스레드 관계</h1>
       <p>
@@ -40,7 +73,7 @@
         <dd>여러 <em>코어</em>를 담을 수 있는 칩. 스케줄링의 실질 대상은 <em>스레드</em>.</dd>
 
         <dt>코어</dt>
-        <dd>명령을 실제로 실행하는 연산 단위. 한 시점에 <abbr title="동일 순간 파이프라인에 동시에 위치하는 스레드는 1개">1스레드</abbr> 실행이 기본이며, 코어가 여러 개면 병렬 실행 가능.</dd>
+        <dd>명령을 실제로 실행하는 연산 단위. 한 시점에 <abbr title="동일 순간 파이프라인에서 실행되는 스레드는 1개">1스레드</abbr> 실행이 기본이며, 코어가 여러 개면 병렬 실행 가능.</dd>
 
         <dt>프로세스</dt>
         <dd>독립 주소 공간과 자원을 가진 실행 단위(파일/소켓 핸들, 보안 문맥 등 포함). 하나 이상의 스레드를 가짐.</dd>
@@ -61,10 +94,6 @@
         <li><strong>진짜 병렬:</strong> 멀티코어에서 코어 수만큼 병렬 스레드</li>
       </ul>
     </article>
-
-    <footer style="margin-top:2rem">
-      <small>자동 라이트/다크, Pico.css CDN, 무애니메이션 설정(접근성).</small>
-    </footer>
   </main>
 </body>
 </html>

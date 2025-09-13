@@ -4,29 +4,57 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="color-scheme" content="light dark" />
+  <meta name="description" content="Total Allocation: Hold and Wait 차단 vs 자원 활용률 저하 트레이드오프."/>
   <title>데드락 방지 - Total Allocation의 트레이드오프</title>
   <!--
     title: 데드락 방지 - Total Allocation의 트레이드오프
     tags: os, deadlock, hold-and-wait, allocation, utilization
     updated: 2025-09-13
-    summary: 실행 전에 모든 자원을 선할당하면 Hold and Wait은 차단되지만, 미사용 자원 점유로 시스템 자원 활용률이 저하된다.
+    summary: 실행 전에 모든 자원을 선할당하면 Hold and Wait은 차단되지만, 미사용 자원 점유로 자원 활용률이 저하된다.
   -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
   <style>
-    :root { --content-max: 920px; }
+    :root { --content-max: 900px; }
+    html { word-break: keep-all; }
     main.container { max-width: var(--content-max); }
-    h1, h2, h3 { text-wrap: balance; }
-    p, li { text-wrap: pretty; }
+    header.container { max-width: var(--content-max); }
+    h1 { font-size: clamp(1.6rem, 2.5vw + 1rem, 2.4rem); text-wrap: balance; margin-bottom: .75rem; }
+    h2, h3 { text-wrap: balance; }
+    p, li { text-wrap: pretty; line-height: 1.7; }
     article, section { contain: content; }
-    .tip { border-left: 3px solid var(--pico-primary); padding: .75rem 1rem; background: color-mix(in oklab, var(--pico-primary), transparent 92%); border-radius: .5rem; }
-    table.resources { width: 100%; }
+    nav ul { align-items: center; }
+    .back { display: inline-flex; align-items: center; gap: .4rem; text-decoration: none; }
+    .back svg { width: 1em; height: 1em; }
+    .tip { border-left: 3px solid var(--pico-primary); padding: .8rem 1rem; border-radius: .5rem; background: color-mix(in oklab, var(--pico-primary), transparent 92%); }
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table.resources { width: 100%; min-width: 520px; }
     table.resources th, table.resources td { white-space: nowrap; }
     table.resources td:first-child { white-space: normal; width: 40%; }
     @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
   </style>
 </head>
 <body>
-  <main class="container">
+  <a href="#content" class="skip-to-content">본문으로 건너뛰기</a>
+
+  <header class="container">
+    <nav>
+      <ul>
+        <li>
+          <a class="back" href="../index.html" onclick="if (history.length>1) {history.back(); return false;}">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 19.5 8 12l7.5-7.5"/></svg>
+            <span>목록으로</span>
+          </a>
+        </li>
+      </ul>
+      <ul>
+        <li><a href="../index.html">홈</a></li>
+        <li><a href="./index.html">OS</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="content" class="container">
     <article>
       <h1>데드락 방지: <em>Total Allocation</em>의 한계</h1>
       <p>
@@ -37,47 +65,24 @@
 
       <h2>왜 자원 활용률이 낮아지나?</h2>
       <ul>
-        <li>프로세스는 <em>모든 순간</em>에 <em>모든 자원</em>이 필요하지 않음(단계별로 필요 자원이 다름).</li>
-        <li>그럼에도 선할당으로 <strong>나중에만</strong> 필요한 자원까지 <em>미리 점유</em>함.</li>
-        <li>해당 자원은 오랫동안 <em>사용되지 않은 채</em> 다른 프로세스에게 제공되지 못함 → <strong>활용률 저하</strong>.</li>
+        <li>프로세스는 <em>모든 순간</em>에 <em>모든 자원</em>이 필요하지 않음(단계별 필요 자원이 다름).</li>
+        <li>선할당으로 <strong>나중에만</strong> 필요한 자원까지 <em>미리 점유</em>함.</li>
+        <li>그 자원은 오랫동안 <em>미사용 상태</em>로 묶여 다른 프로세스가 쓰지 못함 → <strong>활용률 저하</strong>.</li>
       </ul>
 
       <details>
         <summary><strong>단계별 사용 예시(간단 표)</strong></summary>
-        <div style="margin-top:.5rem">
+        <div class="table-scroll" style="margin-top:.5rem">
           <table class="resources">
             <thead>
-              <tr>
-                <th>시간/단계</th>
-                <th>R1</th>
-                <th>R2</th>
-                <th>R3</th>
-              </tr>
+              <tr><th>시간/단계</th><th>R1</th><th>R2</th><th>R3</th></tr>
             </thead>
             <tbody>
-              <tr>
-                <td>t0–t1 (초기화)</td>
-                <td>사용</td>
-                <td><em>미사용(점유)</em></td>
-                <td><em>미사용(점유)</em></td>
-              </tr>
-              <tr>
-                <td>t1–t2 (계산)</td>
-                <td>사용</td>
-                <td>사용</td>
-                <td><em>미사용(점유)</em></td>
-              </tr>
-              <tr>
-                <td>t2–t3 (출력)</td>
-                <td><em>미사용(점유)</em></td>
-                <td>사용</td>
-                <td>사용</td>
-              </tr>
+              <tr><td>t0–t1 (초기화)</td><td>사용</td><td><em>미사용(점유)</em></td><td><em>미사용(점유)</em></td></tr>
+              <tr><td>t1–t2 (계산)</td><td>사용</td><td>사용</td><td><em>미사용(점유)</em></td></tr>
+              <tr><td>t2–t3 (출력)</td><td><em>미사용(점유)</em></td><td>사용</td><td>사용</td></tr>
             </tbody>
           </table>
-          <p style="margin:.5rem 0 0; opacity:.9">
-            괄호의 <em>점유</em>는 Total Allocation으로 인해 다른 프로세스가 쓰지 못하는 상태를 의미합니다.
-          </p>
         </div>
       </details>
 
@@ -92,10 +97,6 @@
         <li>단, <strong>활용률 저하</strong>라는 비용이 발생한다.</li>
       </ul>
     </article>
-
-    <footer style="margin-top:2rem">
-      <small>자동 라이트/다크, Pico.css CDN, 무애니메이션 설정(접근성).</small>
-    </footer>
   </main>
 </body>
 </html>
